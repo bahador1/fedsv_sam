@@ -23,7 +23,7 @@ class DatasetSplit(Dataset):
         print("im in DatasetSplit>>__getitem__>>... image type", type(image))
         print("im in DatasetSplit>>__getitem__>>... image shape", image.shape)
         print("im in DatasetSplit>>__getitem__>>... len image", len(image))
-        return torch.tensor(image), torch.tensor(label)
+        return image, label
 
 class LocalUpdate(object):
     def __init__(self, args, dataset, idxs, logger):
