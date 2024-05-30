@@ -20,9 +20,6 @@ class DatasetSplit(Dataset):
 
     def __getitem__(self, item):
         image, label = self.dataset[self.idxs[item]]
-        print("im in DatasetSplit>>__getitem__>>... image type", type(image))
-        print("im in DatasetSplit>>__getitem__>>... image shape", image.shape)
-        print("im in DatasetSplit>>__getitem__>>... len image", len(image))
         return image, label
 
 class LocalUpdate(object):

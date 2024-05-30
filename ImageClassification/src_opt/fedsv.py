@@ -114,7 +114,7 @@ def solver(gamma):
                             w[key] = w[key] * 100
                     if args.noise == 10:
                             for key in w.keys():
-                                noise = torch.tensor(np.random.normal(0, args.noiselevel, w[i][key].shape))
+                                noise = torch.tensor(np.random.normal(0, args.noiselevel, w[key].shape))
                                 noise = noise.to(torch.float32)
                                 noise = noise.to(args.device)
                                 # print("original weight = ", w[i][key])
