@@ -81,6 +81,10 @@ def solver(gamma):
     print_every = 2
     init_acc = 0
 
+    # attack
+    attack_epochs = [21, 30] 
+    targeted_clients =[2]
+    
     global_shapley = np.array([0.5 for _ in range(args.num_users)])
     cnt_clients = np.ones(args.num_users)
     # The prior probability of each arm been selected in one round
@@ -95,7 +99,7 @@ def solver(gamma):
         m = max(int(args.frac * args.num_users), 1)
         idxs_users = unbiased_selection(probabilities)
 
-        print("the number os users is ", len(idxs_users))
+        # print("the number os users is ", len(idxs_users))
         # idxs_users = np.random.choice(range(args.num_users), m, replace=False)
 
         for idx in idxs_users:
@@ -103,6 +107,21 @@ def solver(gamma):
                                       idxs=user_groups[idx], logger=logger)
             w, loss = local_model.update_weights(
                 model=copy.deepcopy(global_model).to(args.device), global_round=epoch)
+            if(epoch in attack_epochs) and (idx in targeted_clients):
+                    if args.noise == 9:
+                        print(f"now the attackers are: {idx} and the epoch is {epoch}")
+                        for key in w.keys():
+                            w[key] = w[key] * 100
+                    if args.noise == 10:
+                            for key in w.keys():
+                                noise = torch.tensor(np.random.normal(0, args.noiselevel, w[i][key].shape))
+                                noise = noise.to(torch.float32)
+                                noise = noise.to(args.device)
+                                # print("original weight = ", w[i][key])
+                                if "running_mean" or "num_batches_tracked" or "num_batches_" in key:
+                                    break
+                                w[key] += noise
+
             local_weights.append(copy.deepcopy(w))
             local_losses.append(copy.deepcopy(loss))
 
@@ -113,7 +132,7 @@ def solver(gamma):
         weight_shapley = softmax(shapley)
         # print(f"wegiht shapley is {weight_shapley}")
         # Add Gradient Noise
-        local_weights = add_gradient_noise(args, local_weights, idxs_users)
+        # local_weights = add_gradient_noise(args, local_weights, idxs_users)
         global_weights = avgSV_baseline(local_weights, weight_shapley, original_weights)
 
         # update global weights
